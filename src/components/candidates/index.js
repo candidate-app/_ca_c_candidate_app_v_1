@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFederatedComponent } from 'ab-federation-helpers';
+import { useFederatedComponent } from 'blox-js-sdk';
 
 const Candidates = () => {
   console.log(process.env);

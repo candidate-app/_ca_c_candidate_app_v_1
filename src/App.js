@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AppRoute from '../common/routes/AppRoute.js';
-import { useFederatedComponent } from 'ab-federation-helpers';
-import { shield } from 'blox-js-sdk';
+import { shield, useFederatedComponent } from 'blox-js-sdk';
 import './assets/css/main.scss';
 import env from 'env';
 
@@ -48,10 +47,10 @@ const App = () => {
             {errorLoading
               ? `Error loading module "${module}"`
               : FederatedComponent && (
-                  <FederatedComponent>
-                    <AppRoute />
-                  </FederatedComponent>
-                )}
+                <FederatedComponent>
+                  <AppRoute />
+                </FederatedComponent>
+              )}
           </div>
         ) : (
           <div>Loading</div>
