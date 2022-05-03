@@ -1,22 +1,28 @@
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import path from 'path';
+import webpack from 'webpack';
 
-import HtmlWebpackPlugin from 'html-webpack-plugin'
-import path from 'path'
-import webpack from 'webpack'
-
-const ModuleFederationPlugin = webpack.container.ModuleFederationPlugin
+const ModuleFederationPlugin = webpack.container.ModuleFederationPlugin;
 
 // For testing take pull from Appblox/node-blox-sdk and npm install from path
-import { env } from 'node-blox-sdk'
-env.init()
+import { env } from 'node-blox-sdk';
+env.init();
 
-const __dirname = path.resolve()
+const __dirname = path.resolve();
+
+const port =
+  Number(
+    process.env.BLOX_ENV_URL_container.substr(
+      process.env.BLOX_ENV_URL_container.length - 4
+    )
+  ) || 3000;
 
 export default {
   entry: './src/index',
   mode: 'development',
   devServer: {
     static: path.join(__dirname, 'dist'),
-    port: 4001,
+    port: port,
   },
   externals: {
     env: JSON.stringify(process.env),
@@ -27,24 +33,30 @@ export default {
   module: {
     rules: [
       {
-        test: /.js?$/,
+        test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /node_modules/,
         options: {
           presets: ['@babel/preset-react'],
         },
       },
       {
-        test: /.m?js/,
-        type: 'javascript/auto',
-      },
-      {
-        test: /.m?js/,
-        resolve: {
-          fullySpecified: false,
+        test: /\.(jpg|png|svg)$/,
+        use: {
+          loader: 'url-loader',
         },
       },
+      {
+        test: /\.s[ac]ss$/i,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
+  },
+  optimization: {
+    minimize: false,
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -61,12 +73,33 @@ export default {
           singleton: true, // only a single version of the shared module is allowed
           version: '^17.0.2',
         },
+        'react-dom': {
+          import: 'react-dom', // the "react" package will be used a provided and fallback module
+          shareKey: 'react-dom', // under this name the shared module will be placed in the share scope
+          shareScope: 'default', // share scope with this name will be used
+          version: '^17.0.2',
+          singleton: true,
+        },
         'react-redux': {
           import: 'react-redux', // the "react" package will be used a provided and fallback module
           shareKey: 'react-redux', // under this name the shared module will be placed in the share scope
           shareScope: 'default', // share scope with this name will be used
-          singleton: true, // only a single version of the shared module is allowed
           version: '^7.2.5',
+          singleton: true,
+        },
+        'react-router-dom': {
+          import: 'react-router-dom', // the "react" package will be used a provided and fallback module
+          shareKey: 'react-router-dom', // under this name the shared module will be placed in the share scope
+          shareScope: 'default', // share scope with this name will be used
+          singleton: true, // only a single version of the shared module is allowed
+          version: '^5.2.0',
+        },
+        'blox-js-sdk': {
+          import: 'blox-js-sdk',
+          shareKey: 'blox-js-sdk',
+          shareScope: 'default',
+          singleton: true,
+          version: '^1.0.0',
         },
       },
     }),
@@ -74,5 +107,4 @@ export default {
       template: './public/index.html',
     }),
   ],
-}
-
+};
